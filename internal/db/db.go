@@ -21,28 +21,30 @@ type IUser interface {
 
 type IDB interface {
 	IUser
-	Stop(ctx context.Context)
+	Stop(ctx context.Context) error
 }
 
 func NewDB(databaseUrl string) (IDB, error) {
-	db, err := pgx.Connect(context.Background(), databaseUrl)
+	conn, err := pgx.Connect(context.Background(), databaseUrl)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
 	app := &App{
-		db: sql.New(db),
+		conn: conn,
+		db:   sql.New(conn),
 	}
 
 	return app, nil
 }
 
-func (a App) Stop(ctx context.Context) {
-	a.Stop(ctx)
+func (a App) Stop(ctx context.Context) error {
+	return a.conn.Close(ctx)
 }
 
 type App struct {
-	db *sql.Queries
+	conn *pgx.Conn
+	db   *sql.Queries
 }
 
 func (a App) CreateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error) {
