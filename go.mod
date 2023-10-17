@@ -2,10 +2,9 @@ module github.com/gnarlyman/dbpractice
 
 go 1.21
 
-require github.com/jackc/pgx/v5 v5.4.3
-
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.0 // indirect

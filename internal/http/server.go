@@ -22,10 +22,20 @@ func NewHttpServer(listenAddr string, userHandler *handler.UserHandler) *Server 
 func (s *Server) StartServer() {
 	r := mux.NewRouter()
 	r.HandleFunc(
-		"/user", s.userHandler.AllUserHandler).
+		"/user", s.userHandler.AllUser).
 		Methods(http.MethodGet)
 	r.HandleFunc(
-		"/user/{username}", s.userHandler.UserByUsernameHandler).
+		"/user/{user_id}", s.userHandler.UserById).
 		Methods(http.MethodGet)
+	r.HandleFunc(
+		"/user", s.userHandler.NewUser).
+		Methods(http.MethodPost)
+	r.HandleFunc(
+		"/user/{user_id}", s.userHandler.UpdateUser).
+		Methods(http.MethodPut)
+	r.HandleFunc(
+		"/user/{user_id}", s.userHandler.DeleteUser).
+		Methods(http.MethodDelete)
+
 	http.ListenAndServe(s.listenAddr, r)
 }
