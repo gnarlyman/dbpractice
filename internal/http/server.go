@@ -31,8 +31,11 @@ func (s *Server) StartServer() {
 		"/user", s.userHandler.NewUser).
 		Methods(http.MethodPost)
 	r.HandleFunc(
-		"/user/{user_id}", s.userHandler.UpdateUser).
+		"/user", s.userHandler.UpdateUser).
 		Methods(http.MethodPut)
+	r.HandleFunc(
+		"/user/{user_id}", s.userHandler.PatchUser).
+		Methods(http.MethodPatch)
 	r.HandleFunc(
 		"/user/{user_id}", s.userHandler.DeleteUser).
 		Methods(http.MethodDelete)

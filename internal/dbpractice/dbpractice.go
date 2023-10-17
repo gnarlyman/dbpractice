@@ -5,31 +5,28 @@ import (
 	"log"
 
 	"github.com/gnarlyman/dbpractice/internal/db"
-	"github.com/gnarlyman/dbpractice/internal/db/repository"
 	"github.com/gnarlyman/dbpractice/internal/http"
 	"github.com/gnarlyman/dbpractice/internal/http/handler"
-	"github.com/vingarcia/ksql"
 )
 
 type DbPractice struct {
-	conn       *ksql.DB
+	db         db.IDB
 	httpServer *http.Server
 }
 
 func NewDbPractice() *DbPractice {
 	cfg := NewConfig()
 
-	conn, err := db.NewDB(cfg.DatabaseUrl)
+	appDb, err := db.NewDB(cfg.DatabaseUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	userRepository := repository.NewUserRepository(conn)
-	userHandler := handler.NewUserHandler(userRepository)
+	userHandler := handler.NewUserHandler(appDb)
 	httpServer := http.NewHttpServer(cfg.ListenAddr, userHandler)
 
 	return &DbPractice{
-		conn:       conn,
+		db:         appDb,
 		httpServer: httpServer,
 	}
 }
@@ -40,6 +37,6 @@ func (d *DbPractice) Start(ctx context.Context) {
 	}()
 }
 
-func (d *DbPractice) Stop() {
-	d.conn.Close()
+func (d *DbPractice) Stop(ctx context.Context) {
+	d.db.Stop(ctx)
 }

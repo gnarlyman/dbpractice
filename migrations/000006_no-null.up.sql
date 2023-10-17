@@ -1,0 +1,3 @@
+ALTER TABLE users
+    ALTER COLUMN email SET NOT NULL,
+    ALTER COLUMN password SET NOT NULL;
