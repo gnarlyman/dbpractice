@@ -99,7 +99,7 @@ func (q *Queries) GetUserWithPassword(ctx context.Context, userID int32) (User, 
 	return i, err
 }
 
-const listUsers = `-- name: ListUsers :many
+const listUsers = `-- name: FindUsers :many
 SELECT user_id, username, email, created_at, updated_at FROM users
 `
 

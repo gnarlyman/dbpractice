@@ -5,18 +5,18 @@ package repo
 import (
 	"context"
 
-	"github.com/gnarlyman/dbpractice/internal/db/dtomodel"
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
+	"github.com/gnarlyman/dbpractice/swagger"
 )
 
 type IUserRepo interface {
-	CreateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error)
-	DeleteUser(ctx context.Context, userID int) error
-	GetUser(ctx context.Context, userID int) (*dtomodel.User, error)
-	GetUserWithPassword(ctx context.Context, userID int) (*dtomodel.User, error)
-	ListUsers(ctx context.Context) ([]*dtomodel.User, error)
-	UpdateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error)
-	PatchUser(ctx context.Context, userID int, userUpdate *dtomodel.User) (*dtomodel.User, error)
+	CreateUser(ctx context.Context, user *swagger.User) (*swagger.User, error)
+	DeleteUser(ctx context.Context, userID int32) error
+	GetUser(ctx context.Context, userID int32) (*swagger.User, error)
+	GetUserWithPassword(ctx context.Context, userID int32) (*swagger.User, error)
+	FindUsers(ctx context.Context) ([]*swagger.User, error)
+	UpdateUser(ctx context.Context, user *swagger.User) (*swagger.User, error)
+	PatchUser(ctx context.Context, userID int32, userUpdate *swagger.User) (*swagger.User, error)
 }
 
 type UserRepo struct {
@@ -29,26 +29,30 @@ func NewUserRepo(db *sql.Queries) IUserRepo {
 	}
 }
 
-func (ur *UserRepo) CreateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error) {
+func (ur *UserRepo) CreateUser(ctx context.Context, user *swagger.User) (*swagger.User, error) {
 	createUserParams := sql.CreateUserParams{
 		Username: user.Username,
 		Email:    user.Email,
-		Password: user.Password,
+		Password: *user.Password,
 	}
 	userRow, err := ur.db.CreateUser(ctx, createUserParams)
 	if err != nil {
 		return nil, err
 	}
-	return &dtomodel.User{
-		UserID:    int(userRow.UserID),
+
+	createdAt := userRow.CreatedAt.Time.String()
+	updatedAt := userRow.UpdatedAt.Time.String()
+
+	return &swagger.User{
+		UserId:    userRow.UserID,
 		Username:  userRow.Username,
 		Email:     userRow.Email,
-		CreatedAt: userRow.CreatedAt.Time,
-		UpdatedAt: userRow.UpdatedAt.Time,
+		CreatedAt: &createdAt,
+		UpdatedAt: &updatedAt,
 	}, nil
 }
 
-func (ur *UserRepo) DeleteUser(ctx context.Context, userID int) error {
+func (ur *UserRepo) DeleteUser(ctx context.Context, userID int32) error {
 	if err := ur.db.DeleteUser(ctx, int32(userID)); err != nil {
 		return err
 	}
@@ -56,62 +60,74 @@ func (ur *UserRepo) DeleteUser(ctx context.Context, userID int) error {
 }
 
 // GetUser retrieve a user from the database using the userID
-func (ur *UserRepo) GetUser(ctx context.Context, userID int) (*dtomodel.User, error) {
+func (ur *UserRepo) GetUser(ctx context.Context, userID int32) (*swagger.User, error) {
 	userRow, err := ur.db.GetUser(ctx, int32(userID))
 	if err != nil {
 		return nil, err
 	}
-	return &dtomodel.User{
-		UserID:    int(userRow.UserID),
+
+	createdAt := userRow.CreatedAt.Time.String()
+	updatedAt := userRow.UpdatedAt.Time.String()
+
+	return &swagger.User{
+		UserId:    userRow.UserID,
 		Username:  userRow.Username,
 		Email:     userRow.Email,
-		CreatedAt: userRow.CreatedAt.Time,
-		UpdatedAt: userRow.UpdatedAt.Time,
+		CreatedAt: &createdAt,
+		UpdatedAt: &updatedAt,
 	}, nil
 }
 
 // GetUserWithPassword retrieve a user from the database using the userID, includes password
-func (ur *UserRepo) GetUserWithPassword(ctx context.Context, userID int) (*dtomodel.User, error) {
-	userRow, err := ur.db.GetUserWithPassword(ctx, int32(userID))
+func (ur *UserRepo) GetUserWithPassword(ctx context.Context, userID int32) (*swagger.User, error) {
+	userRow, err := ur.db.GetUserWithPassword(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	return &dtomodel.User{
-		UserID:    int(userRow.UserID),
+
+	createdAt := userRow.CreatedAt.Time.String()
+	updatedAt := userRow.UpdatedAt.Time.String()
+
+	return &swagger.User{
+		UserId:    userRow.UserID,
 		Username:  userRow.Username,
 		Email:     userRow.Email,
-		Password:  userRow.Password,
-		CreatedAt: userRow.CreatedAt.Time,
-		UpdatedAt: userRow.UpdatedAt.Time,
+		Password:  &userRow.Password,
+		CreatedAt: &createdAt,
+		UpdatedAt: &updatedAt,
 	}, nil
 }
 
-func (ur *UserRepo) ListUsers(ctx context.Context) ([]*dtomodel.User, error) {
+func (ur *UserRepo) FindUsers(ctx context.Context) ([]*swagger.User, error) {
 	listUsersRow, err := ur.db.ListUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var users []*dtomodel.User
+	var users []*swagger.User
 	for _, userRow := range listUsersRow {
-		users = append(users, &dtomodel.User{
-			UserID:    int(userRow.UserID),
+
+		createdAt := userRow.CreatedAt.Time.String()
+		updatedAt := userRow.UpdatedAt.Time.String()
+
+		users = append(users, &swagger.User{
+			UserId:    userRow.UserID,
 			Username:  userRow.Username,
 			Email:     userRow.Email,
-			CreatedAt: userRow.CreatedAt.Time,
-			UpdatedAt: userRow.UpdatedAt.Time,
+			CreatedAt: &createdAt,
+			UpdatedAt: &updatedAt,
 		})
 	}
 
 	return users, nil
 }
 
-func (ur *UserRepo) UpdateUser(ctx context.Context, userUpdate *dtomodel.User) (*dtomodel.User, error) {
+func (ur *UserRepo) UpdateUser(ctx context.Context, userUpdate *swagger.User) (*swagger.User, error) {
 	params := sql.UpdateUserParams{
-		UserID:   int32(userUpdate.UserID),
+		UserID:   userUpdate.UserId,
 		Username: userUpdate.Username,
 		Email:    userUpdate.Email,
-		Password: userUpdate.Password,
+		Password: *userUpdate.Password,
 	}
 
 	user, err := ur.db.UpdateUser(ctx, params)
@@ -119,22 +135,25 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, userUpdate *dtomodel.User) (
 		return nil, err
 	}
 
-	return &dtomodel.User{
-		UserID:    int(user.UserID),
+	createdAt := user.CreatedAt.Time.String()
+	updatedAt := user.UpdatedAt.Time.String()
+
+	return &swagger.User{
+		UserId:    user.UserID,
 		Username:  user.Username,
 		Email:     user.Email,
-		CreatedAt: user.CreatedAt.Time,
-		UpdatedAt: user.UpdatedAt.Time,
+		CreatedAt: &createdAt,
+		UpdatedAt: &updatedAt,
 	}, nil
 }
 
-func (ur *UserRepo) PatchUser(ctx context.Context, userID int, userUpdate *dtomodel.User) (*dtomodel.User, error) {
+func (ur *UserRepo) PatchUser(ctx context.Context, userID int32, userUpdate *swagger.User) (*swagger.User, error) {
 	user, err := ur.GetUserWithPassword(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	userUpdate.UserID = userID
+	userUpdate.UserId = userID
 
 	if userUpdate.Email == "" {
 		userUpdate.Email = user.Email
@@ -142,7 +161,7 @@ func (ur *UserRepo) PatchUser(ctx context.Context, userID int, userUpdate *dtomo
 	if userUpdate.Username == "" {
 		userUpdate.Username = user.Username
 	}
-	if userUpdate.Password == "" {
+	if *userUpdate.Password == "" {
 		userUpdate.Password = user.Password
 	}
 

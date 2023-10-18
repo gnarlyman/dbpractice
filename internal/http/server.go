@@ -1,44 +1,34 @@
 package http
 
 import (
-	"net/http"
+	"log"
 
 	"github.com/gnarlyman/dbpractice/internal/http/handler"
-	"github.com/gorilla/mux"
+	"github.com/gnarlyman/dbpractice/swagger"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
-	userHandler *handler.UserHandler
-	listenAddr  string
+	handler    handler.IHandler
+	listenAddr string
 }
 
-func NewHttpServer(listenAddr string, userHandler *handler.UserHandler) *Server {
+func NewHttpServer(listenAddr string, handler handler.IHandler) *Server {
 	return &Server{
-		userHandler: userHandler,
-		listenAddr:  listenAddr,
+		handler:    handler,
+		listenAddr: listenAddr,
 	}
 }
 
 func (s *Server) StartServer() {
-	r := mux.NewRouter()
-	r.HandleFunc(
-		"/user", s.userHandler.ListUsers).
-		Methods(http.MethodGet)
-	r.HandleFunc(
-		"/user/{user_id}", s.userHandler.GetUser).
-		Methods(http.MethodGet)
-	r.HandleFunc(
-		"/user", s.userHandler.CreateUser).
-		Methods(http.MethodPost)
-	r.HandleFunc(
-		"/user", s.userHandler.UpdateUser).
-		Methods(http.MethodPut)
-	r.HandleFunc(
-		"/user/{user_id}", s.userHandler.PatchUser).
-		Methods(http.MethodPatch)
-	r.HandleFunc(
-		"/user/{user_id}", s.userHandler.DeleteUser).
-		Methods(http.MethodDelete)
+	e := echo.New()
 
-	http.ListenAndServe(s.listenAddr, r)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	v1 := e.Group("/v1")
+
+	swagger.RegisterHandlers(v1, s.handler)
+	log.Fatal(e.Start(s.listenAddr))
 }

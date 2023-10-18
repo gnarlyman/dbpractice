@@ -5,37 +5,23 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gnarlyman/dbpractice/internal/db/dtomodel"
-	"github.com/gnarlyman/dbpractice/internal/db/repo"
+	"github.com/gnarlyman/dbpractice/swagger"
 	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 )
 
-// UserHandler represents a handler for manage user accounts
-type UserHandler struct {
-	userRepo repo.IUserRepo
-}
-
-// NewUserHandler returns a UserHandler ready for use
-func NewUserHandler(userRepo repo.IUserRepo) *UserHandler {
-	return &UserHandler{
-		userRepo: userRepo,
-	}
-}
-
-// ListUsers returns all dtomodel.User objects to client
-func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := h.userRepo.ListUsers(r.Context())
+// FindUsers returns any swagger.User objects to client
+func (h *Handler) FindUsers(ctx echo.Context, params swagger.FindUsersParams) error {
+	users, err := h.userRepo.FindUsers(ctx.Request().Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+	return ctx.JSON(http.StatusOK, users)
 }
 
 // GetUser returns a given dtomodel.User to client
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	userId, err := strconv.Atoi(vars["user_id"])
@@ -44,7 +30,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.GetUser(r.Context(), userId)
+	user, err := h.userRepo.GetUser(r.Context(), int32(userId))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -55,8 +41,8 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateUser creates a new dtomodel.User from post body
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user dtomodel.User
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var user swagger.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -73,8 +59,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUser updates a dtomodel.User with new settings
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var user dtomodel.User
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var user swagger.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -92,7 +78,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // PatchUser updates only specified fields of dtomodel.User
-func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PatchUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId, err := strconv.Atoi(vars["user_id"])
 	if err != nil {
@@ -100,14 +86,14 @@ func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user dtomodel.User
+	var user swagger.User
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	updatedUser, err := h.userRepo.PatchUser(r.Context(), userId, &user)
+	updatedUser, err := h.userRepo.PatchUser(r.Context(), int32(userId), &user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -118,14 +104,14 @@ func (h *UserHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser removes dtomodel.User based on their username
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userId, err := strconv.Atoi(vars["user_id"])
 	if err != nil {
 		http.Error(w, "invalid user id", http.StatusBadRequest)
 		return
 	}
-	if err := h.userRepo.DeleteUser(r.Context(), userId); err != nil {
+	if err := h.userRepo.DeleteUser(r.Context(), int32(userId)); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

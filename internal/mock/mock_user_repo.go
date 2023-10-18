@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dtomodel "github.com/gnarlyman/dbpractice/internal/db/dtomodel"
+	swagger "github.com/gnarlyman/dbpractice/swagger"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -36,10 +36,10 @@ func (m *MockIUserRepo) EXPECT() *MockIUserRepoMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockIUserRepo) CreateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error) {
+func (m *MockIUserRepo) CreateUser(ctx context.Context, user *swagger.User) (*swagger.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
-	ret0, _ := ret[0].(*dtomodel.User)
+	ret0, _ := ret[0].(*swagger.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,7 +51,7 @@ func (mr *MockIUserRepoMockRecorder) CreateUser(ctx, user interface{}) *gomock.C
 }
 
 // DeleteUser mocks base method.
-func (m *MockIUserRepo) DeleteUser(ctx context.Context, userID int) error {
+func (m *MockIUserRepo) DeleteUser(ctx context.Context, userID int32) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUser", ctx, userID)
 	ret0, _ := ret[0].(error)
@@ -64,11 +64,26 @@ func (mr *MockIUserRepoMockRecorder) DeleteUser(ctx, userID interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockIUserRepo)(nil).DeleteUser), ctx, userID)
 }
 
+// FindUsers mocks base method.
+func (m *MockIUserRepo) FindUsers(ctx context.Context) ([]*swagger.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindUsers", ctx)
+	ret0, _ := ret[0].([]*swagger.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindUsers indicates an expected call of FindUsers.
+func (mr *MockIUserRepoMockRecorder) FindUsers(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUsers", reflect.TypeOf((*MockIUserRepo)(nil).FindUsers), ctx)
+}
+
 // GetUser mocks base method.
-func (m *MockIUserRepo) GetUser(ctx context.Context, userID int) (*dtomodel.User, error) {
+func (m *MockIUserRepo) GetUser(ctx context.Context, userID int32) (*swagger.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", ctx, userID)
-	ret0, _ := ret[0].(*dtomodel.User)
+	ret0, _ := ret[0].(*swagger.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +95,10 @@ func (mr *MockIUserRepoMockRecorder) GetUser(ctx, userID interface{}) *gomock.Ca
 }
 
 // GetUserWithPassword mocks base method.
-func (m *MockIUserRepo) GetUserWithPassword(ctx context.Context, userID int) (*dtomodel.User, error) {
+func (m *MockIUserRepo) GetUserWithPassword(ctx context.Context, userID int32) (*swagger.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserWithPassword", ctx, userID)
-	ret0, _ := ret[0].(*dtomodel.User)
+	ret0, _ := ret[0].(*swagger.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,26 +109,11 @@ func (mr *MockIUserRepoMockRecorder) GetUserWithPassword(ctx, userID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithPassword", reflect.TypeOf((*MockIUserRepo)(nil).GetUserWithPassword), ctx, userID)
 }
 
-// ListUsers mocks base method.
-func (m *MockIUserRepo) ListUsers(ctx context.Context) ([]*dtomodel.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListUsers", ctx)
-	ret0, _ := ret[0].([]*dtomodel.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListUsers indicates an expected call of ListUsers.
-func (mr *MockIUserRepoMockRecorder) ListUsers(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockIUserRepo)(nil).ListUsers), ctx)
-}
-
 // PatchUser mocks base method.
-func (m *MockIUserRepo) PatchUser(ctx context.Context, userID int, userUpdate *dtomodel.User) (*dtomodel.User, error) {
+func (m *MockIUserRepo) PatchUser(ctx context.Context, userID int32, userUpdate *swagger.User) (*swagger.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PatchUser", ctx, userID, userUpdate)
-	ret0, _ := ret[0].(*dtomodel.User)
+	ret0, _ := ret[0].(*swagger.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -125,10 +125,10 @@ func (mr *MockIUserRepoMockRecorder) PatchUser(ctx, userID, userUpdate interface
 }
 
 // UpdateUser mocks base method.
-func (m *MockIUserRepo) UpdateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error) {
+func (m *MockIUserRepo) UpdateUser(ctx context.Context, user *swagger.User) (*swagger.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", ctx, user)
-	ret0, _ := ret[0].(*dtomodel.User)
+	ret0, _ := ret[0].(*swagger.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -22,8 +22,8 @@ func NewDbPractice() *DbPractice {
 		log.Fatal(err)
 	}
 
-	userHandler := handler.NewUserHandler(appDb.GetUserRepo())
-	httpServer := http.NewHttpServer(cfg.ListenAddr, userHandler)
+	apiHandler := handler.NewHandler(appDb.GetUserRepo())
+	httpServer := http.NewHttpServer(cfg.ListenAddr, apiHandler)
 
 	return &DbPractice{
 		db:         appDb,
