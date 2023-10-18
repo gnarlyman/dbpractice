@@ -3,6 +3,7 @@ module github.com/gnarlyman/dbpractice
 go 1.21
 
 require (
+	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.4.3
 )

@@ -3,3 +3,9 @@ migrate:
 
 migrate-seq:
 	migrate create -ext sql -dir migrations -seq ${SEQ}
+
+sql-gen:
+	sqlc generate
+
+go-generate:
+	go generate ./...
