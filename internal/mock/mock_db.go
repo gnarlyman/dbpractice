@@ -36,10 +36,10 @@ func (m *MockIDB) EXPECT() *MockIDBMockRecorder {
 }
 
 // GetUserRepo mocks base method.
-func (m *MockIDB) GetUserRepo() repo.IUser {
+func (m *MockIDB) GetUserRepo() repo.IUserRepo {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserRepo")
-	ret0, _ := ret[0].(repo.IUser)
+	ret0, _ := ret[0].(repo.IUserRepo)
 	return ret0
 }
 

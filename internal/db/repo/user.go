@@ -1,4 +1,4 @@
-//go:generate mockgen -source user.go -destination=../../mock/mock_user.go -package=mock
+//go:generate mockgen -source user.go -destination=../../mock/mock_user_repo.go -package=mock
 
 package repo
 
@@ -9,7 +9,7 @@ import (
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
 )
 
-type IUser interface {
+type IUserRepo interface {
 	CreateUser(ctx context.Context, user *dtomodel.User) (*dtomodel.User, error)
 	DeleteUser(ctx context.Context, userID int) error
 	GetUser(ctx context.Context, userID int) (*dtomodel.User, error)
@@ -23,7 +23,7 @@ type UserRepo struct {
 	db *sql.Queries
 }
 
-func NewUserRepo(db *sql.Queries) IUser {
+func NewUserRepo(db *sql.Queries) IUserRepo {
 	return &UserRepo{
 		db: db,
 	}

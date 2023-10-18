@@ -12,11 +12,11 @@ import (
 
 // UserHandler represents a handler for manage user accounts
 type UserHandler struct {
-	userRepo repo.IUser
+	userRepo repo.IUserRepo
 }
 
 // NewUserHandler returns a UserHandler ready for use
-func NewUserHandler(userRepo repo.IUser) *UserHandler {
+func NewUserHandler(userRepo repo.IUserRepo) *UserHandler {
 	return &UserHandler{
 		userRepo: userRepo,
 	}

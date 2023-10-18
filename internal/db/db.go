@@ -12,14 +12,14 @@ import (
 )
 
 type IDB interface {
-	GetUserRepo() repo.IUser
+	GetUserRepo() repo.IUserRepo
 	Stop(ctx context.Context) error
 }
 
 type DB struct {
 	conn     *pgx.Conn
 	db       *sql.Queries
-	UserRepo repo.IUser
+	UserRepo repo.IUserRepo
 }
 
 func NewDB(databaseUrl string) (IDB, error) {
@@ -38,7 +38,7 @@ func NewDB(databaseUrl string) (IDB, error) {
 	return app, nil
 }
 
-func (a *DB) GetUserRepo() repo.IUser {
+func (a *DB) GetUserRepo() repo.IUserRepo {
 	return a.UserRepo
 }
 
