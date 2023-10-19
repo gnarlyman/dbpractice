@@ -3,12 +3,16 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gnarlyman/dbpractice/internal/db/repo"
 	"github.com/gnarlyman/dbpractice/pkg/swagger"
 	"github.com/labstack/echo/v4"
 )
 
 type IHandler interface {
+	// GetApiV1SwaggerJson (GET /api/v1/swagger.json)
+	GetApiV1SwaggerJson(ctx echo.Context) error
 	// FindUsers (GET /users)
 	FindUsers(ctx echo.Context, params swagger.FindUsersParams) error
 	// AddUser (POST /users)
@@ -43,4 +47,13 @@ func sendDBPracticeError(ctx echo.Context, code int, message string) error {
 	}
 	err := ctx.JSON(code, dbPracticeErr)
 	return err
+}
+
+// GetApiV1SwaggerJson server the swagger as json
+func (h *Handler) GetApiV1SwaggerJson(ctx echo.Context) error {
+	sw, err := swagger.GetSwagger()
+	if err != nil {
+		return sendDBPracticeError(ctx, http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusOK, sw)
 }

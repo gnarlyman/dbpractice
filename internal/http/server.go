@@ -31,16 +31,13 @@ func (s *Server) StartServer() {
 		os.Exit(1)
 	}
 
+	fmt.Println(sw.Paths)
 	sw.Servers = nil
 
 	e := echo.New()
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(oapimiddleware.OapiRequestValidator(sw))
-
-	// TODO fix me, and get swagger listening on api
-	//v1 := e.Group("/v1")
 
 	swagger.RegisterHandlers(e, s.handler)
 	log.Fatal(e.Start(s.listenAddr))

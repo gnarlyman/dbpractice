@@ -142,6 +142,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetApiV1SwaggerJson request
+	GetApiV1SwaggerJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// FindUsers request
 	FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -165,6 +168,18 @@ type ClientInterface interface {
 	UpdateUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateUser(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetApiV1SwaggerJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiV1SwaggerJsonRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -275,6 +290,33 @@ func (c *Client) UpdateUser(ctx context.Context, userId int32, body UpdateUserJS
 	return c.Client.Do(req)
 }
 
+// NewGetApiV1SwaggerJsonRequest generates requests for GetApiV1SwaggerJson
+func NewGetApiV1SwaggerJsonRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/swagger.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewFindUsersRequest generates requests for FindUsers
 func NewFindUsersRequest(server string, params *FindUsersParams) (*http.Request, error) {
 	var err error
@@ -284,7 +326,7 @@ func NewFindUsersRequest(server string, params *FindUsersParams) (*http.Request,
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users")
+	operationPath := fmt.Sprintf("/api/v1/users")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -360,7 +402,7 @@ func NewAddUserRequestWithBody(server string, contentType string, body io.Reader
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users")
+	operationPath := fmt.Sprintf("/api/v1/users")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -396,7 +438,7 @@ func NewDeleteUserRequest(server string, userId int32) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -430,7 +472,7 @@ func NewFindUserByIdRequest(server string, userId int32) (*http.Request, error) 
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -475,7 +517,7 @@ func NewPatchUserRequestWithBody(server string, userId int32, contentType string
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -522,7 +564,7 @@ func NewUpdateUserRequestWithBody(server string, userId int32, contentType strin
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -585,6 +627,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetApiV1SwaggerJsonWithResponse request
+	GetApiV1SwaggerJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiV1SwaggerJsonResponse, error)
+
 	// FindUsersWithResponse request
 	FindUsersWithResponse(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*FindUsersResponse, error)
 
@@ -608,6 +653,28 @@ type ClientWithResponsesInterface interface {
 	UpdateUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
 
 	UpdateUserWithResponse(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
+}
+
+type GetApiV1SwaggerJsonResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *interface{}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiV1SwaggerJsonResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiV1SwaggerJsonResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type FindUsersResponse struct {
@@ -747,6 +814,15 @@ func (r UpdateUserResponse) StatusCode() int {
 	return 0
 }
 
+// GetApiV1SwaggerJsonWithResponse request returning *GetApiV1SwaggerJsonResponse
+func (c *ClientWithResponses) GetApiV1SwaggerJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiV1SwaggerJsonResponse, error) {
+	rsp, err := c.GetApiV1SwaggerJson(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiV1SwaggerJsonResponse(rsp)
+}
+
 // FindUsersWithResponse request returning *FindUsersResponse
 func (c *ClientWithResponses) FindUsersWithResponse(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*FindUsersResponse, error) {
 	rsp, err := c.FindUsers(ctx, params, reqEditors...)
@@ -823,6 +899,32 @@ func (c *ClientWithResponses) UpdateUserWithResponse(ctx context.Context, userId
 		return nil, err
 	}
 	return ParseUpdateUserResponse(rsp)
+}
+
+// ParseGetApiV1SwaggerJsonResponse parses an HTTP response from a GetApiV1SwaggerJsonWithResponse call
+func ParseGetApiV1SwaggerJsonResponse(rsp *http.Response) (*GetApiV1SwaggerJsonResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiV1SwaggerJsonResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseFindUsersResponse parses an HTTP response from a FindUsersWithResponse call
@@ -1019,28 +1121,40 @@ func ParseUpdateUserResponse(rsp *http.Response) (*UpdateUserResponse, error) {
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (GET /users)
+	// (GET /api/v1/swagger.json)
+	GetApiV1SwaggerJson(ctx echo.Context) error
+
+	// (GET /api/v1/users)
 	FindUsers(ctx echo.Context, params FindUsersParams) error
 
-	// (POST /users)
+	// (POST /api/v1/users)
 	AddUser(ctx echo.Context) error
 
-	// (DELETE /users/{user_id})
+	// (DELETE /api/v1/users/{user_id})
 	DeleteUser(ctx echo.Context, userId int32) error
 
-	// (GET /users/{user_id})
+	// (GET /api/v1/users/{user_id})
 	FindUserById(ctx echo.Context, userId int32) error
 
-	// (PATCH /users/{user_id})
+	// (PATCH /api/v1/users/{user_id})
 	PatchUser(ctx echo.Context, userId int32) error
 
-	// (PUT /users/{user_id})
+	// (PUT /api/v1/users/{user_id})
 	UpdateUser(ctx echo.Context, userId int32) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetApiV1SwaggerJson converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiV1SwaggerJson(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetApiV1SwaggerJson(ctx)
+	return err
 }
 
 // FindUsers converts echo context to params.
@@ -1169,33 +1283,36 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/users", wrapper.FindUsers)
-	router.POST(baseURL+"/users", wrapper.AddUser)
-	router.DELETE(baseURL+"/users/:user_id", wrapper.DeleteUser)
-	router.GET(baseURL+"/users/:user_id", wrapper.FindUserById)
-	router.PATCH(baseURL+"/users/:user_id", wrapper.PatchUser)
-	router.PUT(baseURL+"/users/:user_id", wrapper.UpdateUser)
+	router.GET(baseURL+"/api/v1/swagger.json", wrapper.GetApiV1SwaggerJson)
+	router.GET(baseURL+"/api/v1/users", wrapper.FindUsers)
+	router.POST(baseURL+"/api/v1/users", wrapper.AddUser)
+	router.DELETE(baseURL+"/api/v1/users/:user_id", wrapper.DeleteUser)
+	router.GET(baseURL+"/api/v1/users/:user_id", wrapper.FindUserById)
+	router.PATCH(baseURL+"/api/v1/users/:user_id", wrapper.PatchUser)
+	router.PUT(baseURL+"/api/v1/users/:user_id", wrapper.UpdateUser)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"AA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
