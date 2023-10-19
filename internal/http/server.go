@@ -24,6 +24,15 @@ func NewHttpServer(listenAddr string, handler handler.IHandler) *Server {
 	}
 }
 
+func CORS() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) (returnErr error) {
+			ctx.Response().Header().Set("Access-Control-Allow-Origin", "*")
+			return next(ctx)
+		}
+	}
+}
+
 func (s *Server) StartServer() {
 	sw, err := swagger.GetSwagger()
 	if err != nil {
@@ -38,6 +47,7 @@ func (s *Server) StartServer() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(oapimiddleware.OapiRequestValidator(sw))
+	e.Use(CORS())
 
 	swagger.RegisterHandlers(e, s.handler)
 	log.Fatal(e.Start(s.listenAddr))
