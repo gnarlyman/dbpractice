@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gnarlyman/dbpractice/swagger"
+	"github.com/gnarlyman/dbpractice/pkg/swagger"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/gnarlyman/dbpractice/internal/http/handler"
-	"github.com/gnarlyman/dbpractice/swagger"
+	"github.com/gnarlyman/dbpractice/pkg/swagger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	oapimiddleware "github.com/oapi-codegen/echo-middleware"
@@ -39,6 +39,7 @@ func (s *Server) StartServer() {
 	e.Use(middleware.Recover())
 	e.Use(oapimiddleware.OapiRequestValidator(sw))
 
+	// TODO fix me, and get swagger listening on api
 	//v1 := e.Group("/v1")
 
 	swagger.RegisterHandlers(e, s.handler)

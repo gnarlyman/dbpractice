@@ -4,7 +4,7 @@ package handler
 
 import (
 	"github.com/gnarlyman/dbpractice/internal/db/repo"
-	"github.com/gnarlyman/dbpractice/swagger"
+	"github.com/gnarlyman/dbpractice/pkg/swagger"
 	"github.com/labstack/echo/v4"
 )
 

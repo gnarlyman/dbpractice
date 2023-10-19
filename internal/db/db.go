@@ -7,7 +7,7 @@ import (
 
 	"github.com/gnarlyman/dbpractice/internal/db/repo"
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
-	"github.com/gnarlyman/dbpractice/pgx5Logger"
+	"github.com/gnarlyman/dbpractice/pkg/pgx5Logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/tracelog"
 	"github.com/pkg/errors"

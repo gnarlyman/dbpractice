@@ -7,7 +7,7 @@ package mock
 import (
 	reflect "reflect"
 
-	swagger "github.com/gnarlyman/dbpractice/swagger"
+	swagger "github.com/gnarlyman/dbpractice/pkg/swagger"
 	gomock "github.com/golang/mock/gomock"
 	echo "github.com/labstack/echo/v4"
 )

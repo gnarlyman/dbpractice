@@ -9,5 +9,5 @@
 - **pgx** - high performance postgresql go driver
 
 ### Features
-- implements fully complient openapi v3 restful api
+- implements fully compliant openapi v3 restful api
 - full CRUD support for database models

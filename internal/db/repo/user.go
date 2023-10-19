@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
-	"github.com/gnarlyman/dbpractice/swagger"
+	"github.com/gnarlyman/dbpractice/pkg/swagger"
 )
 
 type IUserRepo interface {
