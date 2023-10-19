@@ -5,7 +5,6 @@
 package mock
 
 import (
-	context "context"
 	reflect "reflect"
 
 	repo "github.com/gnarlyman/dbpractice/internal/db/repo"
@@ -50,15 +49,13 @@ func (mr *MockIDBMockRecorder) GetUserRepo() *gomock.Call {
 }
 
 // Stop mocks base method.
-func (m *MockIDB) Stop(ctx context.Context) error {
+func (m *MockIDB) Stop() {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Stop", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "Stop")
 }
 
 // Stop indicates an expected call of Stop.
-func (mr *MockIDBMockRecorder) Stop(ctx interface{}) *gomock.Call {
+func (mr *MockIDBMockRecorder) Stop() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockIDB)(nil).Stop), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockIDB)(nil).Stop))
 }

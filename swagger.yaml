@@ -7,7 +7,7 @@ info:
     name: Mike Schon
     email: mschon314@gmail.com
 servers:
-  - url: localhost:8080/v1
+  - url: http://localhost:8080
 paths:
   /users:
     get:
@@ -46,6 +46,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    post:
+      description: Creates a new user
+      operationId: addUser
+      requestBody:
+        description: User to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '200':
+          description: user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{user_id}:
+    get:
+      description: Returns a user based on a single ID
+      operationId: findUserById
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of user to fetch
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: deletes a single user based on the ID supplied
+      operationId: deleteUser
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user to delete
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: pet deleted
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: update a user based on the ID supplied
+      operationId: updateUser
+      requestBody:
+        description: changes to user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user to update
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+            description: user response
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/User'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      description: patch a user based on the ID supplied only changing specified fields
+      operationId: patchUser
+      requestBody:
+        description: changes to user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUser'
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user to patch
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -69,6 +199,16 @@ components:
       required:
         - username
         - email
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+
+    PatchUser:
+      type: object
       properties:
         username:
           type: string

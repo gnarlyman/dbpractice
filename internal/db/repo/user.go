@@ -4,6 +4,7 @@ package repo
 
 import (
 	"context"
+	"time"
 
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
 	"github.com/gnarlyman/dbpractice/swagger"
@@ -40,8 +41,8 @@ func (ur *UserRepo) CreateUser(ctx context.Context, user *swagger.User) (*swagge
 		return nil, err
 	}
 
-	createdAt := userRow.CreatedAt.Time.String()
-	updatedAt := userRow.UpdatedAt.Time.String()
+	createdAt := userRow.CreatedAt.Time.Format(time.RFC3339)
+	updatedAt := userRow.UpdatedAt.Time.Format(time.RFC3339)
 
 	return &swagger.User{
 		UserId:    userRow.UserID,
@@ -53,7 +54,7 @@ func (ur *UserRepo) CreateUser(ctx context.Context, user *swagger.User) (*swagge
 }
 
 func (ur *UserRepo) DeleteUser(ctx context.Context, userID int32) error {
-	if err := ur.db.DeleteUser(ctx, int32(userID)); err != nil {
+	if err := ur.db.DeleteUser(ctx, userID); err != nil {
 		return err
 	}
 	return nil
@@ -61,13 +62,13 @@ func (ur *UserRepo) DeleteUser(ctx context.Context, userID int32) error {
 
 // GetUser retrieve a user from the database using the userID
 func (ur *UserRepo) GetUser(ctx context.Context, userID int32) (*swagger.User, error) {
-	userRow, err := ur.db.GetUser(ctx, int32(userID))
+	userRow, err := ur.db.GetUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	createdAt := userRow.CreatedAt.Time.String()
-	updatedAt := userRow.UpdatedAt.Time.String()
+	createdAt := userRow.CreatedAt.Time.Format(time.RFC3339)
+	updatedAt := userRow.UpdatedAt.Time.Format(time.RFC3339)
 
 	return &swagger.User{
 		UserId:    userRow.UserID,
@@ -85,8 +86,8 @@ func (ur *UserRepo) GetUserWithPassword(ctx context.Context, userID int32) (*swa
 		return nil, err
 	}
 
-	createdAt := userRow.CreatedAt.Time.String()
-	updatedAt := userRow.UpdatedAt.Time.String()
+	createdAt := userRow.CreatedAt.Time.Format(time.RFC3339)
+	updatedAt := userRow.UpdatedAt.Time.Format(time.RFC3339)
 
 	return &swagger.User{
 		UserId:    userRow.UserID,
@@ -107,8 +108,8 @@ func (ur *UserRepo) FindUsers(ctx context.Context) ([]*swagger.User, error) {
 	var users []*swagger.User
 	for _, userRow := range listUsersRow {
 
-		createdAt := userRow.CreatedAt.Time.String()
-		updatedAt := userRow.UpdatedAt.Time.String()
+		createdAt := userRow.CreatedAt.Time.Format(time.RFC3339)
+		updatedAt := userRow.UpdatedAt.Time.Format(time.RFC3339)
 
 		users = append(users, &swagger.User{
 			UserId:    userRow.UserID,
@@ -135,8 +136,8 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, userUpdate *swagger.User) (*
 		return nil, err
 	}
 
-	createdAt := user.CreatedAt.Time.String()
-	updatedAt := user.UpdatedAt.Time.String()
+	createdAt := user.CreatedAt.Time.Format(time.RFC3339)
+	updatedAt := user.UpdatedAt.Time.Format(time.RFC3339)
 
 	return &swagger.User{
 		UserId:    user.UserID,
@@ -161,7 +162,7 @@ func (ur *UserRepo) PatchUser(ctx context.Context, userID int32, userUpdate *swa
 	if userUpdate.Username == "" {
 		userUpdate.Username = user.Username
 	}
-	if *userUpdate.Password == "" {
+	if userUpdate.Password == nil {
 		userUpdate.Password = user.Password
 	}
 

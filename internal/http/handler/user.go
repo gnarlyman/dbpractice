@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gnarlyman/dbpractice/swagger"
-	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,99 +19,97 @@ func (h *Handler) FindUsers(ctx echo.Context, params swagger.FindUsersParams) er
 	return ctx.JSON(http.StatusOK, users)
 }
 
-// GetUser returns a given dtomodel.User to client
-func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	userId, err := strconv.Atoi(vars["user_id"])
+// FindUserById returns a swagger.User to client from a given userId
+func (h *Handler) FindUserById(ctx echo.Context, userId int32) error {
+	user, err := h.userRepo.GetUser(ctx.Request().Context(), userId)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		if errors.Is(err, pgx.ErrNoRows) {
+			return sendDBPracticeError(ctx, http.StatusNotFound, "user not found")
+		}
+		return err
 	}
 
-	user, err := h.userRepo.GetUser(r.Context(), int32(userId))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	return ctx.JSON(http.StatusOK, user)
 }
 
-// CreateUser creates a new dtomodel.User from post body
-func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user swagger.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+// AddUser creates a new swagger.User from post body
+func (h *Handler) AddUser(ctx echo.Context) error {
+	var newUser swagger.NewUser
+	err := ctx.Bind(&newUser)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	createdUser, err := h.userRepo.CreateUser(r.Context(), &user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(createdUser)
-}
-
-// UpdateUser updates a dtomodel.User with new settings
-func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var user swagger.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	createdUser, err := h.userRepo.UpdateUser(r.Context(), &user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(createdUser)
-}
-
-// PatchUser updates only specified fields of dtomodel.User
-func (h *Handler) PatchUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userId, err := strconv.Atoi(vars["user_id"])
-	if err != nil {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
-		return
+		return sendDBPracticeError(ctx, http.StatusBadRequest, "Invalid format for NewUser")
 	}
 
 	var user swagger.User
-	err = json.NewDecoder(r.Body).Decode(&user)
+	user.Username = newUser.Username
+	user.Email = newUser.Email
+	user.Password = newUser.Password
+
+	createdUser, err := h.userRepo.CreateUser(ctx.Request().Context(), &user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return err
 	}
 
-	updatedUser, err := h.userRepo.PatchUser(r.Context(), int32(userId), &user)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(updatedUser)
+	return ctx.JSON(http.StatusOK, createdUser)
 }
 
-// DeleteUser removes dtomodel.User based on their username
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userId, err := strconv.Atoi(vars["user_id"])
+// UpdateUser updates a swagger.User with new settings
+func (h *Handler) UpdateUser(ctx echo.Context, userId int32) error {
+	var newUser swagger.NewUser
+	err := ctx.Bind(&newUser)
 	if err != nil {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
-		return
+		return sendDBPracticeError(ctx, http.StatusBadRequest, "Invalid format for NewUser")
 	}
-	if err := h.userRepo.DeleteUser(r.Context(), int32(userId)); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+
+	var user swagger.User
+	user.UserId = userId
+	user.Username = newUser.Username
+	user.Email = newUser.Email
+	user.Password = newUser.Password
+
+	updatedUser, err := h.userRepo.UpdateUser(ctx.Request().Context(), &user)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return sendDBPracticeError(ctx, http.StatusNotFound, "user not found")
+		}
+		return err
 	}
+
+	return ctx.JSON(http.StatusOK, updatedUser)
+}
+
+// PatchUser updates only specified fields of swagger.User
+func (h *Handler) PatchUser(ctx echo.Context, userId int32) error {
+	var newUser swagger.NewUser
+	err := ctx.Bind(&newUser)
+	if err != nil {
+		return sendDBPracticeError(ctx, http.StatusBadRequest, "Invalid format for NewUser")
+	}
+
+	var user swagger.User
+	user.UserId = userId
+	user.Username = newUser.Username
+	user.Email = newUser.Email
+	user.Password = newUser.Password
+
+	updatedUser, err := h.userRepo.PatchUser(ctx.Request().Context(), userId, &user)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return sendDBPracticeError(ctx, http.StatusNotFound, "user not found")
+		}
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, updatedUser)
+}
+
+// DeleteUser removes swagger.User based on their username
+func (h *Handler) DeleteUser(ctx echo.Context, userId int32) error {
+	if err := h.userRepo.DeleteUser(ctx.Request().Context(), userId); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return sendDBPracticeError(ctx, http.StatusNotFound, "user not found")
+		}
+		return err
+	}
+	return nil
 }

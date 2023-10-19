@@ -4,28 +4,40 @@ package db
 
 import (
 	"context"
-	"log"
 
 	"github.com/gnarlyman/dbpractice/internal/db/repo"
 	"github.com/gnarlyman/dbpractice/internal/db/sql"
-	"github.com/jackc/pgx/v5"
+	"github.com/gnarlyman/dbpractice/pgx5Logger"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 type IDB interface {
 	GetUserRepo() repo.IUserRepo
-	Stop(ctx context.Context) error
+	Stop()
 }
 
 type DB struct {
-	conn     *pgx.Conn
+	conn     *pgxpool.Pool
 	db       *sql.Queries
 	UserRepo repo.IUserRepo
 }
 
-func NewDB(databaseUrl string) (IDB, error) {
-	conn, err := pgx.Connect(context.Background(), databaseUrl)
+func NewDB(databaseUrl string, lgr *logrus.Logger) (IDB, error) {
+	logger := pgx5Logger.NewLogger(lgr)
+
+	pxgConfig, err := pgxpool.ParseConfig(databaseUrl)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+		return nil, errors.Wrap(err, "failed to connect to db")
+	}
+
+	pxgConfig.ConnConfig.Tracer = &tracelog.TraceLog{Logger: logger, LogLevel: tracelog.LogLevelDebug}
+
+	conn, err := pgxpool.NewWithConfig(context.Background(), pxgConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to db")
 	}
 
 	db := sql.New(conn)
@@ -42,6 +54,6 @@ func (a *DB) GetUserRepo() repo.IUserRepo {
 	return a.UserRepo
 }
 
-func (a *DB) Stop(ctx context.Context) error {
-	return a.conn.Close(ctx)
+func (a *DB) Stop() {
+	a.conn.Close()
 }

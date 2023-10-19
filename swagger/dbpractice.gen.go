@@ -34,6 +34,13 @@ type NewUser struct {
 	Username string  `json:"username"`
 }
 
+// PatchUser defines model for PatchUser.
+type PatchUser struct {
+	Email    *string `json:"email,omitempty"`
+	Password *string `json:"password,omitempty"`
+	Username *string `json:"username,omitempty"`
+}
+
 // User defines model for User.
 type User struct {
 	CreatedAt *string `json:"created_at,omitempty"`
@@ -52,6 +59,15 @@ type FindUsersParams struct {
 	// Limit maximum number of results to return
 	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
 }
+
+// AddUserJSONRequestBody defines body for AddUser for application/json ContentType.
+type AddUserJSONRequestBody = NewUser
+
+// PatchUserJSONRequestBody defines body for PatchUser for application/json ContentType.
+type PatchUserJSONRequestBody = PatchUser
+
+// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
+type UpdateUserJSONRequestBody = NewUser
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -128,10 +144,127 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	// FindUsers request
 	FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddUserWithBody request with any body
+	AddUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddUser(ctx context.Context, body AddUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteUser request
+	DeleteUser(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindUserById request
+	FindUserById(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchUserWithBody request with any body
+	PatchUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchUser(ctx context.Context, userId int32, body PatchUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateUserWithBody request with any body
+	UpdateUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateUser(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindUsersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddUser(ctx context.Context, body AddUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteUser(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteUserRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindUserById(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindUserByIdRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchUserRequestWithBody(c.Server, userId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchUser(ctx context.Context, userId int32, body PatchUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchUserRequest(c.Server, userId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateUserRequestWithBody(c.Server, userId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateUser(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateUserRequest(c.Server, userId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +340,208 @@ func NewFindUsersRequest(server string, params *FindUsersParams) (*http.Request,
 	return req, nil
 }
 
+// NewAddUserRequest calls the generic AddUser builder with application/json body
+func NewAddUserRequest(server string, body AddUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAddUserRequestWithBody generates requests for AddUser with any type of body
+func NewAddUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteUserRequest generates requests for DeleteUser
+func NewDeleteUserRequest(server string, userId int32) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFindUserByIdRequest generates requests for FindUserById
+func NewFindUserByIdRequest(server string, userId int32) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchUserRequest calls the generic PatchUser builder with application/json body
+func NewPatchUserRequest(server string, userId int32, body PatchUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchUserRequestWithBody(server, userId, "application/json", bodyReader)
+}
+
+// NewPatchUserRequestWithBody generates requests for PatchUser with any type of body
+func NewPatchUserRequestWithBody(server string, userId int32, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateUserRequest calls the generic UpdateUser builder with application/json body
+func NewUpdateUserRequest(server string, userId int32, body UpdateUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateUserRequestWithBody(server, userId, "application/json", bodyReader)
+}
+
+// NewUpdateUserRequestWithBody generates requests for UpdateUser with any type of body
+func NewUpdateUserRequestWithBody(server string, userId int32, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -252,6 +587,27 @@ func WithBaseURL(baseURL string) ClientOption {
 type ClientWithResponsesInterface interface {
 	// FindUsersWithResponse request
 	FindUsersWithResponse(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*FindUsersResponse, error)
+
+	// AddUserWithBodyWithResponse request with any body
+	AddUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddUserResponse, error)
+
+	AddUserWithResponse(ctx context.Context, body AddUserJSONRequestBody, reqEditors ...RequestEditorFn) (*AddUserResponse, error)
+
+	// DeleteUserWithResponse request
+	DeleteUserWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error)
+
+	// FindUserByIdWithResponse request
+	FindUserByIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*FindUserByIdResponse, error)
+
+	// PatchUserWithBodyWithResponse request with any body
+	PatchUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchUserResponse, error)
+
+	PatchUserWithResponse(ctx context.Context, userId int32, body PatchUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchUserResponse, error)
+
+	// UpdateUserWithBodyWithResponse request with any body
+	UpdateUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
+
+	UpdateUserWithResponse(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
 }
 
 type FindUsersResponse struct {
@@ -277,6 +633,120 @@ func (r FindUsersResponse) StatusCode() int {
 	return 0
 }
 
+type AddUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r AddUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FindUserByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindUserByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindUserByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSONDefault  *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // FindUsersWithResponse request returning *FindUsersResponse
 func (c *ClientWithResponses) FindUsersWithResponse(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*FindUsersResponse, error) {
 	rsp, err := c.FindUsers(ctx, params, reqEditors...)
@@ -284,6 +754,75 @@ func (c *ClientWithResponses) FindUsersWithResponse(ctx context.Context, params 
 		return nil, err
 	}
 	return ParseFindUsersResponse(rsp)
+}
+
+// AddUserWithBodyWithResponse request with arbitrary body returning *AddUserResponse
+func (c *ClientWithResponses) AddUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddUserResponse, error) {
+	rsp, err := c.AddUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) AddUserWithResponse(ctx context.Context, body AddUserJSONRequestBody, reqEditors ...RequestEditorFn) (*AddUserResponse, error) {
+	rsp, err := c.AddUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddUserResponse(rsp)
+}
+
+// DeleteUserWithResponse request returning *DeleteUserResponse
+func (c *ClientWithResponses) DeleteUserWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error) {
+	rsp, err := c.DeleteUser(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteUserResponse(rsp)
+}
+
+// FindUserByIdWithResponse request returning *FindUserByIdResponse
+func (c *ClientWithResponses) FindUserByIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*FindUserByIdResponse, error) {
+	rsp, err := c.FindUserById(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindUserByIdResponse(rsp)
+}
+
+// PatchUserWithBodyWithResponse request with arbitrary body returning *PatchUserResponse
+func (c *ClientWithResponses) PatchUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchUserResponse, error) {
+	rsp, err := c.PatchUserWithBody(ctx, userId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchUserWithResponse(ctx context.Context, userId int32, body PatchUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchUserResponse, error) {
+	rsp, err := c.PatchUser(ctx, userId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchUserResponse(rsp)
+}
+
+// UpdateUserWithBodyWithResponse request with arbitrary body returning *UpdateUserResponse
+func (c *ClientWithResponses) UpdateUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error) {
+	rsp, err := c.UpdateUserWithBody(ctx, userId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateUserWithResponse(ctx context.Context, userId int32, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error) {
+	rsp, err := c.UpdateUser(ctx, userId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateUserResponse(rsp)
 }
 
 // ParseFindUsersResponse parses an HTTP response from a FindUsersWithResponse call
@@ -319,11 +858,184 @@ func ParseFindUsersResponse(rsp *http.Response) (*FindUsersResponse, error) {
 	return response, nil
 }
 
+// ParseAddUserResponse parses an HTTP response from a AddUserWithResponse call
+func ParseAddUserResponse(rsp *http.Response) (*AddUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteUserResponse parses an HTTP response from a DeleteUserWithResponse call
+func ParseDeleteUserResponse(rsp *http.Response) (*DeleteUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindUserByIdResponse parses an HTTP response from a FindUserByIdWithResponse call
+func ParseFindUserByIdResponse(rsp *http.Response) (*FindUserByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindUserByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchUserResponse parses an HTTP response from a PatchUserWithResponse call
+func ParsePatchUserResponse(rsp *http.Response) (*PatchUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateUserResponse parses an HTTP response from a UpdateUserWithResponse call
+func ParseUpdateUserResponse(rsp *http.Response) (*UpdateUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /users)
 	FindUsers(ctx echo.Context, params FindUsersParams) error
+
+	// (POST /users)
+	AddUser(ctx echo.Context) error
+
+	// (DELETE /users/{user_id})
+	DeleteUser(ctx echo.Context, userId int32) error
+
+	// (GET /users/{user_id})
+	FindUserById(ctx echo.Context, userId int32) error
+
+	// (PATCH /users/{user_id})
+	PatchUser(ctx echo.Context, userId int32) error
+
+	// (PUT /users/{user_id})
+	UpdateUser(ctx echo.Context, userId int32) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -356,6 +1068,79 @@ func (w *ServerInterfaceWrapper) FindUsers(ctx echo.Context) error {
 	return err
 }
 
+// AddUser converts echo context to params.
+func (w *ServerInterfaceWrapper) AddUser(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AddUser(ctx)
+	return err
+}
+
+// DeleteUser converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteUser(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteUser(ctx, userId)
+	return err
+}
+
+// FindUserById converts echo context to params.
+func (w *ServerInterfaceWrapper) FindUserById(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.FindUserById(ctx, userId)
+	return err
+}
+
+// PatchUser converts echo context to params.
+func (w *ServerInterfaceWrapper) PatchUser(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PatchUser(ctx, userId)
+	return err
+}
+
+// UpdateUser converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateUser(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateUser(ctx, userId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -385,22 +1170,32 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/users", wrapper.FindUsers)
+	router.POST(baseURL+"/users", wrapper.AddUser)
+	router.DELETE(baseURL+"/users/:user_id", wrapper.DeleteUser)
+	router.GET(baseURL+"/users/:user_id", wrapper.FindUserById)
+	router.PATCH(baseURL+"/users/:user_id", wrapper.PatchUser)
+	router.PUT(baseURL+"/users/:user_id", wrapper.UpdateUser)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

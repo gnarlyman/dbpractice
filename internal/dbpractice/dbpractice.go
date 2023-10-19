@@ -7,6 +7,7 @@ import (
 	"github.com/gnarlyman/dbpractice/internal/db"
 	"github.com/gnarlyman/dbpractice/internal/http"
 	"github.com/gnarlyman/dbpractice/internal/http/handler"
+	"github.com/sirupsen/logrus"
 )
 
 type DbPractice struct {
@@ -16,8 +17,12 @@ type DbPractice struct {
 
 func NewDbPractice() *DbPractice {
 	cfg := NewConfig()
+	lgr := logrus.New()
+	lgr.SetFormatter(&logrus.JSONFormatter{
+		PrettyPrint: true,
+	})
 
-	appDb, err := db.NewDB(cfg.DatabaseUrl)
+	appDb, err := db.NewDB(cfg.DatabaseUrl, lgr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,6 +42,6 @@ func (d *DbPractice) Start(ctx context.Context) {
 	}()
 }
 
-func (d *DbPractice) Stop(ctx context.Context) {
-	d.db.Stop(ctx)
+func (d *DbPractice) Stop() {
+	d.db.Stop()
 }

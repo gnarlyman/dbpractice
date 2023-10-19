@@ -22,5 +22,5 @@ func main() {
 
 	<-sigCh
 
-	app.Stop(context.Background())
+	app.Stop()
 }
