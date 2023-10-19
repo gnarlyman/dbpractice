@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	swagger "github.com/gnarlyman/dbpractice/swagger"
+	swagger "github.com/gnarlyman/dbpractice/pkg/swagger"
 	gomock "github.com/golang/mock/gomock"
 )
 

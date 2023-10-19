@@ -91,6 +91,76 @@ func (mr *MockIHandlerMockRecorder) FindUsers(ctx, params interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUsers", reflect.TypeOf((*MockIHandler)(nil).FindUsers), ctx, params)
 }
 
+// GetApiV1SwaggerJson mocks base method.
+func (m *MockIHandler) GetApiV1SwaggerJson(ctx echo.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetApiV1SwaggerJson", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetApiV1SwaggerJson indicates an expected call of GetApiV1SwaggerJson.
+func (mr *MockIHandlerMockRecorder) GetApiV1SwaggerJson(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApiV1SwaggerJson", reflect.TypeOf((*MockIHandler)(nil).GetApiV1SwaggerJson), ctx)
+}
+
+// HeadApiV1Users mocks base method.
+func (m *MockIHandler) HeadApiV1Users(ctx echo.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HeadApiV1Users", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HeadApiV1Users indicates an expected call of HeadApiV1Users.
+func (mr *MockIHandlerMockRecorder) HeadApiV1Users(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HeadApiV1Users", reflect.TypeOf((*MockIHandler)(nil).HeadApiV1Users), ctx)
+}
+
+// HeadApiV1UsersUserId mocks base method.
+func (m *MockIHandler) HeadApiV1UsersUserId(ctx echo.Context, userId int32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HeadApiV1UsersUserId", ctx, userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// HeadApiV1UsersUserId indicates an expected call of HeadApiV1UsersUserId.
+func (mr *MockIHandlerMockRecorder) HeadApiV1UsersUserId(ctx, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HeadApiV1UsersUserId", reflect.TypeOf((*MockIHandler)(nil).HeadApiV1UsersUserId), ctx, userId)
+}
+
+// OptionsApiV1Users mocks base method.
+func (m *MockIHandler) OptionsApiV1Users(ctx echo.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OptionsApiV1Users", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OptionsApiV1Users indicates an expected call of OptionsApiV1Users.
+func (mr *MockIHandlerMockRecorder) OptionsApiV1Users(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OptionsApiV1Users", reflect.TypeOf((*MockIHandler)(nil).OptionsApiV1Users), ctx)
+}
+
+// OptionsApiV1UsersUserId mocks base method.
+func (m *MockIHandler) OptionsApiV1UsersUserId(ctx echo.Context, userId int32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OptionsApiV1UsersUserId", ctx, userId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// OptionsApiV1UsersUserId indicates an expected call of OptionsApiV1UsersUserId.
+func (mr *MockIHandlerMockRecorder) OptionsApiV1UsersUserId(ctx, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OptionsApiV1UsersUserId", reflect.TypeOf((*MockIHandler)(nil).OptionsApiV1UsersUserId), ctx, userId)
+}
+
 // PatchUser mocks base method.
 func (m *MockIHandler) PatchUser(ctx echo.Context, userId int32) error {
 	m.ctrl.T.Helper()
