@@ -65,19 +65,3 @@ func (h *Handler) GetApiV1SwaggerJson(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, sw)
 }
-
-func (h *Handler) HeadApiV1Users(ctx echo.Context) error {
-	return nil
-}
-
-func (h *Handler) OptionsApiV1Users(ctx echo.Context) error {
-	return nil
-}
-
-func (h *Handler) HeadApiV1UsersUserId(ctx echo.Context, userId int32) error {
-	return nil
-}
-
-func (h *Handler) OptionsApiV1UsersUserId(ctx echo.Context, userId int32) error {
-	return nil
-}

@@ -9,6 +9,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h *Handler) HeadApiV1Users(_ echo.Context) error {
+	return nil
+}
+
+func (h *Handler) OptionsApiV1Users(_ echo.Context) error {
+	return nil
+}
+
+func (h *Handler) HeadApiV1UsersUserId(_ echo.Context, _ int32) error {
+	return nil
+}
+
+func (h *Handler) OptionsApiV1UsersUserId(_ echo.Context, _ int32) error {
+	return nil
+}
+
 // FindUsers returns any swagger.User objects to client
 func (h *Handler) FindUsers(ctx echo.Context, params swagger.FindUsersParams) error {
 	users, err := h.userRepo.FindUsers(ctx.Request().Context())
