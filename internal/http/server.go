@@ -27,9 +27,10 @@ func NewHttpServer(listenAddr string, handler handler.IHandler) *Server {
 func CORS() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) (returnErr error) {
-			ctx.Response().Header().Set("Access-Control-Allow-Origin", "*")
-			ctx.Response().Header().Set("Access-Control-Allow-Methods", "HEAD, OPTIONS, POST, GET, PUT, PATCH, DELETE")
-			ctx.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			headers := ctx.Response().Header()
+			headers.Set("Access-Control-Allow-Origin", "*")
+			headers.Set("Access-Control-Allow-Methods", "HEAD, OPTIONS, POST, GET, PUT, PATCH, DELETE")
+			headers.Set("Access-Control-Allow-Headers", "Content-Type")
 			return next(ctx)
 		}
 	}
