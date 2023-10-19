@@ -41,8 +41,7 @@ func (s *Server) StartServer() {
 		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
 		os.Exit(1)
 	}
-
-	fmt.Println(sw.Paths)
+	// remove servers so OapiRequestValidator does not throw warning
 	sw.Servers = nil
 
 	e := echo.New()
