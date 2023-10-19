@@ -20,18 +20,27 @@ paths:
                 description: swagger json
   /api/v1/users:
     options:
+      tags:
+        - v1
+        - cors
       description: |
         return options
       responses:
         200:
           description: options
     head:
+      tags:
+        - v1
+        - cors
       description: |
         return head
       responses:
         200:
           description: head
     get:
+      tags:
+        - v1
+        - users
       description: |
         Returns all users from the system
       operationId: findUsers
@@ -68,6 +77,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
+      tags:
+        - v1
+        - users
       description: Creates a new user
       operationId: addUser
       requestBody:
@@ -92,6 +104,9 @@ paths:
                 $ref: '#/components/schemas/Error'
   /api/v1/users/{user_id}:
     options:
+      tags:
+        - v1
+        - cors
       parameters:
         - name: user_id
           in: path
@@ -106,6 +121,9 @@ paths:
         200:
           description: options
     head:
+      tags:
+        - v1
+        - cors
       parameters:
         - name: user_id
           in: path
@@ -120,6 +138,9 @@ paths:
         200:
           description: head
     get:
+      tags:
+        - v1
+        - users
       description: Returns a user based on a single ID
       operationId: findUserById
       parameters:
@@ -144,6 +165,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
+      tags:
+        - v1
+        - users
       description: deletes a single user based on the ID supplied
       operationId: deleteUser
       parameters:
@@ -164,6 +188,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     put:
+      tags:
+        - v1
+        - users
       description: update a user based on the ID supplied
       operationId: updateUser
       requestBody:
@@ -195,6 +222,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     patch:
+      tags:
+        - v1
+        - users
       description: patch a user based on the ID supplied only changing specified fields
       operationId: patchUser
       requestBody:
