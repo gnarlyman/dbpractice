@@ -148,6 +148,12 @@ type ClientInterface interface {
 	// FindUsers request
 	FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// HeadApiV1Users request
+	HeadApiV1Users(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// OptionsApiV1Users request
+	OptionsApiV1Users(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// AddUserWithBody request with any body
 	AddUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -158,6 +164,12 @@ type ClientInterface interface {
 
 	// FindUserById request
 	FindUserById(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// HeadApiV1UsersUserId request
+	HeadApiV1UsersUserId(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// OptionsApiV1UsersUserId request
+	OptionsApiV1UsersUserId(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PatchUserWithBody request with any body
 	PatchUserWithBody(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -184,6 +196,30 @@ func (c *Client) GetApiV1SwaggerJson(ctx context.Context, reqEditors ...RequestE
 
 func (c *Client) FindUsers(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindUsersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) HeadApiV1Users(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewHeadApiV1UsersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) OptionsApiV1Users(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewOptionsApiV1UsersRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +268,30 @@ func (c *Client) DeleteUser(ctx context.Context, userId int32, reqEditors ...Req
 
 func (c *Client) FindUserById(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindUserByIdRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) HeadApiV1UsersUserId(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewHeadApiV1UsersUserIdRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) OptionsApiV1UsersUserId(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewOptionsApiV1UsersUserIdRequest(c.Server, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -382,6 +442,60 @@ func NewFindUsersRequest(server string, params *FindUsersParams) (*http.Request,
 	return req, nil
 }
 
+// NewHeadApiV1UsersRequest generates requests for HeadApiV1Users
+func NewHeadApiV1UsersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("HEAD", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewOptionsApiV1UsersRequest generates requests for OptionsApiV1Users
+func NewOptionsApiV1UsersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("OPTIONS", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewAddUserRequest calls the generic AddUser builder with application/json body
 func NewAddUserRequest(server string, body AddUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -483,6 +597,74 @@ func NewFindUserByIdRequest(server string, userId int32) (*http.Request, error) 
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewHeadApiV1UsersUserIdRequest generates requests for HeadApiV1UsersUserId
+func NewHeadApiV1UsersUserIdRequest(server string, userId int32) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("HEAD", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewOptionsApiV1UsersUserIdRequest generates requests for OptionsApiV1UsersUserId
+func NewOptionsApiV1UsersUserIdRequest(server string, userId int32) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "user_id", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("OPTIONS", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -633,6 +815,12 @@ type ClientWithResponsesInterface interface {
 	// FindUsersWithResponse request
 	FindUsersWithResponse(ctx context.Context, params *FindUsersParams, reqEditors ...RequestEditorFn) (*FindUsersResponse, error)
 
+	// HeadApiV1UsersWithResponse request
+	HeadApiV1UsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HeadApiV1UsersResponse, error)
+
+	// OptionsApiV1UsersWithResponse request
+	OptionsApiV1UsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsApiV1UsersResponse, error)
+
 	// AddUserWithBodyWithResponse request with any body
 	AddUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddUserResponse, error)
 
@@ -643,6 +831,12 @@ type ClientWithResponsesInterface interface {
 
 	// FindUserByIdWithResponse request
 	FindUserByIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*FindUserByIdResponse, error)
+
+	// HeadApiV1UsersUserIdWithResponse request
+	HeadApiV1UsersUserIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*HeadApiV1UsersUserIdResponse, error)
+
+	// OptionsApiV1UsersUserIdWithResponse request
+	OptionsApiV1UsersUserIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*OptionsApiV1UsersUserIdResponse, error)
 
 	// PatchUserWithBodyWithResponse request with any body
 	PatchUserWithBodyWithResponse(ctx context.Context, userId int32, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchUserResponse, error)
@@ -694,6 +888,48 @@ func (r FindUsersResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r FindUsersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type HeadApiV1UsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r HeadApiV1UsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r HeadApiV1UsersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type OptionsApiV1UsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r OptionsApiV1UsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r OptionsApiV1UsersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -768,6 +1004,48 @@ func (r FindUserByIdResponse) StatusCode() int {
 	return 0
 }
 
+type HeadApiV1UsersUserIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r HeadApiV1UsersUserIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r HeadApiV1UsersUserIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type OptionsApiV1UsersUserIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r OptionsApiV1UsersUserIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r OptionsApiV1UsersUserIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PatchUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -832,6 +1110,24 @@ func (c *ClientWithResponses) FindUsersWithResponse(ctx context.Context, params 
 	return ParseFindUsersResponse(rsp)
 }
 
+// HeadApiV1UsersWithResponse request returning *HeadApiV1UsersResponse
+func (c *ClientWithResponses) HeadApiV1UsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*HeadApiV1UsersResponse, error) {
+	rsp, err := c.HeadApiV1Users(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseHeadApiV1UsersResponse(rsp)
+}
+
+// OptionsApiV1UsersWithResponse request returning *OptionsApiV1UsersResponse
+func (c *ClientWithResponses) OptionsApiV1UsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsApiV1UsersResponse, error) {
+	rsp, err := c.OptionsApiV1Users(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseOptionsApiV1UsersResponse(rsp)
+}
+
 // AddUserWithBodyWithResponse request with arbitrary body returning *AddUserResponse
 func (c *ClientWithResponses) AddUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddUserResponse, error) {
 	rsp, err := c.AddUserWithBody(ctx, contentType, body, reqEditors...)
@@ -865,6 +1161,24 @@ func (c *ClientWithResponses) FindUserByIdWithResponse(ctx context.Context, user
 		return nil, err
 	}
 	return ParseFindUserByIdResponse(rsp)
+}
+
+// HeadApiV1UsersUserIdWithResponse request returning *HeadApiV1UsersUserIdResponse
+func (c *ClientWithResponses) HeadApiV1UsersUserIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*HeadApiV1UsersUserIdResponse, error) {
+	rsp, err := c.HeadApiV1UsersUserId(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseHeadApiV1UsersUserIdResponse(rsp)
+}
+
+// OptionsApiV1UsersUserIdWithResponse request returning *OptionsApiV1UsersUserIdResponse
+func (c *ClientWithResponses) OptionsApiV1UsersUserIdWithResponse(ctx context.Context, userId int32, reqEditors ...RequestEditorFn) (*OptionsApiV1UsersUserIdResponse, error) {
+	rsp, err := c.OptionsApiV1UsersUserId(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseOptionsApiV1UsersUserIdResponse(rsp)
 }
 
 // PatchUserWithBodyWithResponse request with arbitrary body returning *PatchUserResponse
@@ -955,6 +1269,38 @@ func ParseFindUsersResponse(rsp *http.Response) (*FindUsersResponse, error) {
 		}
 		response.JSONDefault = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseHeadApiV1UsersResponse parses an HTTP response from a HeadApiV1UsersWithResponse call
+func ParseHeadApiV1UsersResponse(rsp *http.Response) (*HeadApiV1UsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &HeadApiV1UsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseOptionsApiV1UsersResponse parses an HTTP response from a OptionsApiV1UsersWithResponse call
+func ParseOptionsApiV1UsersResponse(rsp *http.Response) (*OptionsApiV1UsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &OptionsApiV1UsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -1052,6 +1398,38 @@ func ParseFindUserByIdResponse(rsp *http.Response) (*FindUserByIdResponse, error
 	return response, nil
 }
 
+// ParseHeadApiV1UsersUserIdResponse parses an HTTP response from a HeadApiV1UsersUserIdWithResponse call
+func ParseHeadApiV1UsersUserIdResponse(rsp *http.Response) (*HeadApiV1UsersUserIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &HeadApiV1UsersUserIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseOptionsApiV1UsersUserIdResponse parses an HTTP response from a OptionsApiV1UsersUserIdWithResponse call
+func ParseOptionsApiV1UsersUserIdResponse(rsp *http.Response) (*OptionsApiV1UsersUserIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &OptionsApiV1UsersUserIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParsePatchUserResponse parses an HTTP response from a PatchUserWithResponse call
 func ParsePatchUserResponse(rsp *http.Response) (*PatchUserResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1127,6 +1505,12 @@ type ServerInterface interface {
 	// (GET /api/v1/users)
 	FindUsers(ctx echo.Context, params FindUsersParams) error
 
+	// (HEAD /api/v1/users)
+	HeadApiV1Users(ctx echo.Context) error
+
+	// (OPTIONS /api/v1/users)
+	OptionsApiV1Users(ctx echo.Context) error
+
 	// (POST /api/v1/users)
 	AddUser(ctx echo.Context) error
 
@@ -1135,6 +1519,12 @@ type ServerInterface interface {
 
 	// (GET /api/v1/users/{user_id})
 	FindUserById(ctx echo.Context, userId int32) error
+
+	// (HEAD /api/v1/users/{user_id})
+	HeadApiV1UsersUserId(ctx echo.Context, userId int32) error
+
+	// (OPTIONS /api/v1/users/{user_id})
+	OptionsApiV1UsersUserId(ctx echo.Context, userId int32) error
 
 	// (PATCH /api/v1/users/{user_id})
 	PatchUser(ctx echo.Context, userId int32) error
@@ -1182,6 +1572,24 @@ func (w *ServerInterfaceWrapper) FindUsers(ctx echo.Context) error {
 	return err
 }
 
+// HeadApiV1Users converts echo context to params.
+func (w *ServerInterfaceWrapper) HeadApiV1Users(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.HeadApiV1Users(ctx)
+	return err
+}
+
+// OptionsApiV1Users converts echo context to params.
+func (w *ServerInterfaceWrapper) OptionsApiV1Users(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.OptionsApiV1Users(ctx)
+	return err
+}
+
 // AddUser converts echo context to params.
 func (w *ServerInterfaceWrapper) AddUser(ctx echo.Context) error {
 	var err error
@@ -1220,6 +1628,38 @@ func (w *ServerInterfaceWrapper) FindUserById(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.FindUserById(ctx, userId)
+	return err
+}
+
+// HeadApiV1UsersUserId converts echo context to params.
+func (w *ServerInterfaceWrapper) HeadApiV1UsersUserId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.HeadApiV1UsersUserId(ctx, userId)
+	return err
+}
+
+// OptionsApiV1UsersUserId converts echo context to params.
+func (w *ServerInterfaceWrapper) OptionsApiV1UsersUserId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "user_id" -------------
+	var userId int32
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "user_id", runtime.ParamLocationPath, ctx.Param("user_id"), &userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter user_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.OptionsApiV1UsersUserId(ctx, userId)
 	return err
 }
 
@@ -1285,9 +1725,13 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/api/v1/swagger.json", wrapper.GetApiV1SwaggerJson)
 	router.GET(baseURL+"/api/v1/users", wrapper.FindUsers)
+	router.HEAD(baseURL+"/api/v1/users", wrapper.HeadApiV1Users)
+	router.OPTIONS(baseURL+"/api/v1/users", wrapper.OptionsApiV1Users)
 	router.POST(baseURL+"/api/v1/users", wrapper.AddUser)
 	router.DELETE(baseURL+"/api/v1/users/:user_id", wrapper.DeleteUser)
 	router.GET(baseURL+"/api/v1/users/:user_id", wrapper.FindUserById)
+	router.HEAD(baseURL+"/api/v1/users/:user_id", wrapper.HeadApiV1UsersUserId)
+	router.OPTIONS(baseURL+"/api/v1/users/:user_id", wrapper.OptionsApiV1UsersUserId)
 	router.PATCH(baseURL+"/api/v1/users/:user_id", wrapper.PatchUser)
 	router.PUT(baseURL+"/api/v1/users/:user_id", wrapper.UpdateUser)
 
@@ -1296,23 +1740,24 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xX32/bNhD+Vwhuj0bkNH0o9LRk3gYP2FasyF6yoGDIk8SOv0qe4hiG//fhKNmOLdVJ",
-	"l7bIgDzZOh2P39333ZFacelt8A4cJl6ueJINWJH//hSjj/QnRB8gooZsll4B/VY+WoG85Nrh2Ss+4bgM",
-	"0D1CDZGvJ9xCSqLO3v3LhFG7mq/XEx7hY6sjKF5edTF3/tfbYP7mA0ikWL/D4jLBCB6wQpuRLSY8iJQW",
-	"PqrRl22C6IR9BLit56TfawzeW4Gy+YYABwA2ewtj/qh4ebXi30eoeMm/K3YMFz29xaaa68mA3ggCQb0n",
-	"asdQBXX0dYL4XqtH6WOkzLR0WN3rNfnCHVJBzMzLDFRBklEH1N7xkv+snWLWR2DaVZ41EImvNhpe8gYx",
-	"lEVhvBSm8QnLN9M300IEXdyeFmkh6hriyYfkHWVAyzuZOxQS7xHIbZKNd2enr3+oyXIiveUT3nHEf9P/",
-	"AHtHDhRlH9w5Q0jI+q1Y5SOjKkQhUbuaLTQ2TDAlUNyIRLhRo6Ggswv2NntJst5CTF3A05PpyZT28QGc",
-	"CJqX/CybSFPY5PqMJliueA05KeJcEL654iX/BfA86L9O33XOv5Iv0ZOCd6kTxqvpdFMXcDmECMFomYMU",
-	"m+idwIb8bHLvyrwelOjw/XqyTYCEke4h31/4J2AbXWLCGJY9WRW9ZdgAS8uEYP+mTPazJbFc5qhUrygs",
-	"YN7i6jD4pgcZelZpgxDZzZKTSHjJP7YQlzsB3BsTuyJoBJtGO6U3iBjFkp4TLjPl1Da5LfeRWHGnbWuZ",
-	"a+0NROYrFiG1BhNBi7kGn8BltNW4B+rhzrx+IvfbtI/NoH4AHVRiKA0qLNvA6ZqrEq3Bz0J0DEh30I3t",
-	"7OAugERQDHY+wacRHf6Y52ZigjlYZCUOZHeusup4N/cg4YVXyy+WxXakD/MgO+lEKMXvD12MLayfSPXD",
-	"DD93Rg9HTbHqj6J1x7IBhCHfnZ34TtrVBjLljOa3Yt7l+TOfsdRSDqAGWpjl5b0cjs6g+Yy6neK1PY09",
-	"pL7daeDvTyE6RQ9pfmr/vx5WIAD2UNQz6Mrjh8MBO1vS5rNPHg4Xy7l6HDcbXipA2XxbWr5+rxLLz2n4",
-	"0j17RItkHtB80ITMO7NkshGupmtXCiB1RfZKg1FpoITdnf6zW7SD+bWl8OUPkV3KI4zkykG+cbS7c+zl",
-	"KNnTZzsyhrqPpofkOdDfZV723wTYbfk/VOCRa8yL/h68ytCHBMTbjUqOfP/SZ/W/AQAA//8hYuTk/REA",
-	"AA==",
+	"H4sIAAAAAAAC/+xYTW/cNhD9KwTb48JaxzkEOtXu9sMF2gQN3ItrBLQ4kphSJEOObC8M/fdiSGm/JK/t",
+	"OjHiIhd7l6Rm3sx7M0PtLS9s46wBg4HntzwUNTQifvzJe+vpg/PWgUcFcbmwEuh/aX0jkOdcGTx6xWcc",
+	"lw7SV6jA827GGwhBVPF0vxnQK1PxrptxD59a5UHy/DzZXJ+/WBmzlx+hQLL1B1yfBZjAA41QesLFjDsR",
+	"wrX1cnKzDeCNaB4AbnVy1vuagvdOYFE/I8ARgMG30PptyfPzW/69h5Ln/LtszXDW05sN2exmI3o9CAT5",
+	"gaidQuXk3u0A/oOSD9LHRJrp0XF2Lzo6CzdICdELW0SgEkLhlUNlDc/5z8pI1lgPTJnSsho88dV6zXNe",
+	"I7o8y7QthK5twPzN/M08E05lV4dZuBZVBf7gY7CGIqDHk8wNigI3CORNKGprjg5f/1DRykFhGz7jiSP+",
+	"u/oH2Hs6QFa2wR0zhICsd8VK6xllwYsClanYtcKaCSYFiksRCDcq1GR0ccLexVMFrV6BD8ng4cH8YE5+",
+	"rAMjnOI5P4pLpCmsY34mA8xveQUxKOJcEL5TyXP+C+CxU38dvk+Hf6OzRE9w1oQkjFfz+ZAXMNGEcE6r",
+	"IhrJButJYGN+hthTmrtRinb3u9kqABJG2EC+/eCfgK03gQmtWTzJSm8bhjWwsAwIzd8UyXa0JJazaJXy",
+	"5UUDGF2c7xofapChZaXSCJ5dLjmJhOf8Uwt+uRbARptYJ0EhNGGyUvoF4b1Y0veAy0g5lU0sy20kjbhR",
+	"Tdsw0zaX4JktmYfQagwEzccc3IFLq0bhFqj7K/Piidyvwt7Xg/oGtJOJsTQosWyAk4qrFK3GRyHaByQN",
+	"uinPBm4cFAiSwfpMDUKOdZg4YLQ5obhfQchYYIPsptK7bTC6iQ5tXAp3+uz3J9y+TTuP9Dz4i86dDRNV",
+	"92OcEoEJZuA61t3I97GMNcZTl4eAJ1YuPxtnqwE2Zo3WqSqElHxzxKBvoXuisO/X89eu393Gmt32g7dL",
+	"LGtAGPOd1onvoEylIVLOaFpJZk3stqcLFlqKAeRIC4v4eC+HvR33dEG9jey1PY09pL650Xjb7rl0Z9il",
+	"+and7vU4Aw6whyK/gh60fxTusLMi7XRx5yg8WZ7Kh3Ez8FICFvXz0vLla5VY/l+NGvrzUph9hvn3ctOx",
+	"PZTpbXOiR9HyqPx3mjOzRi9ZUQtT0ctHcFCoktZLBVqGUQ7Xb7aPbt0J5pfO3Oe/XKxDnqjUmDmI9+52",
+	"fb/5dsXY7FuunRhP6aeD++Q50t9ZfOy/CTC5fIEK3HO9/aa/e6+49DoN/mpQyZ5fgXh30f0bAAD//+gH",
+	"kRgDFQAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -31,10 +31,15 @@ func NewUserRepo(db *sql.Queries) IUserRepo {
 }
 
 func (ur *UserRepo) CreateUser(ctx context.Context, user *swagger.User) (*swagger.User, error) {
+	pw := ""
+	if user.Password != nil {
+		pw = *user.Password
+	}
+
 	createUserParams := sql.CreateUserParams{
 		Username: user.Username,
 		Email:    user.Email,
-		Password: *user.Password,
+		Password: pw,
 	}
 	userRow, err := ur.db.CreateUser(ctx, createUserParams)
 	if err != nil {
@@ -124,11 +129,16 @@ func (ur *UserRepo) FindUsers(ctx context.Context) ([]*swagger.User, error) {
 }
 
 func (ur *UserRepo) UpdateUser(ctx context.Context, userUpdate *swagger.User) (*swagger.User, error) {
+	pw := ""
+	if userUpdate.Password != nil {
+		pw = *userUpdate.Password
+	}
+
 	params := sql.UpdateUserParams{
 		UserID:   userUpdate.UserId,
 		Username: userUpdate.Username,
 		Email:    userUpdate.Email,
-		Password: *userUpdate.Password,
+		Password: pw,
 	}
 
 	user, err := ur.db.UpdateUser(ctx, params)

@@ -13,6 +13,14 @@ import (
 type IHandler interface {
 	// GetApiV1SwaggerJson (GET /api/v1/swagger.json)
 	GetApiV1SwaggerJson(ctx echo.Context) error
+	// HeadApiV1Users (HEAD /api/v1/users)
+	HeadApiV1Users(ctx echo.Context) error
+	// OptionsApiV1Users (OPTIONS /api/v1/users)
+	OptionsApiV1Users(ctx echo.Context) error
+	// HeadApiV1UsersUserId (HEAD /api/v1/users/{user_id})
+	HeadApiV1UsersUserId(ctx echo.Context, userId int32) error
+	// OptionsApiV1UsersUserId (OPTIONS /api/v1/users/{user_id})
+	OptionsApiV1UsersUserId(ctx echo.Context, userId int32) error
 	// FindUsers (GET /users)
 	FindUsers(ctx echo.Context, params swagger.FindUsersParams) error
 	// AddUser (POST /users)
@@ -56,4 +64,20 @@ func (h *Handler) GetApiV1SwaggerJson(ctx echo.Context) error {
 		return sendDBPracticeError(ctx, http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, sw)
+}
+
+func (h *Handler) HeadApiV1Users(ctx echo.Context) error {
+	return nil
+}
+
+func (h *Handler) OptionsApiV1Users(ctx echo.Context) error {
+	return nil
+}
+
+func (h *Handler) HeadApiV1UsersUserId(ctx echo.Context, userId int32) error {
+	return nil
+}
+
+func (h *Handler) OptionsApiV1UsersUserId(ctx echo.Context, userId int32) error {
+	return nil
 }

@@ -19,6 +19,18 @@ paths:
               schema:
                 description: swagger json
   /api/v1/users:
+    options:
+      description: |
+        return options
+      responses:
+        200:
+          description: options
+    head:
+      description: |
+        return head
+      responses:
+        200:
+          description: head
     get:
       description: |
         Returns all users from the system
@@ -79,6 +91,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /api/v1/users/{user_id}:
+    options:
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of user to fetch
+          required: true
+          schema:
+            type: integer
+            format: int32
+      description: |
+        return options
+      responses:
+        200:
+          description: options
+    head:
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of user to fetch
+          required: true
+          schema:
+            type: integer
+            format: int32
+      description: |
+        return head
+      responses:
+        200:
+          description: head
     get:
       description: Returns a user based on a single ID
       operationId: findUserById
