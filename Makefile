@@ -12,3 +12,6 @@ go-generate:
 
 api-gen:
 	oapi-codegen swagger.yaml > pkg/swagger/dbpractice.gen.go
+
+test:
+	go test -race ./...
