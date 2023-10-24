@@ -1,7 +1,7 @@
 # DB Practice module
 
 ### Packages Used
-- **csql** - database query go code generated from query.sql
+- **sqlc** - database query go code generated from query.sql
 - **oapi-codegen** - openapi v3 api handling go code generated from swagger.json
 - **mockgen** - interface mocking go code generated from go interfaces
 - **golang-migrate** - a database migration tool written in go
